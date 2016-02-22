@@ -1,0 +1,7 @@
+{
+  "Volumes" : { },
+  "ExposedPorts" : { },
+  "HostConfig" : {
+    "Binds" : [ "/usr/var/bin:/usr/var/bin:rw" ]
+  }
+}
