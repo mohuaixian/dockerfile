@@ -1,4 +1,4 @@
-FROM java:8-jre
+FROM java:7-jre
 
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
@@ -12,6 +12,7 @@ RUN gpg --keyserver pool.sks-keyservers.net --recv-keys \
 	47309207D818FFD8DCD3F83F1931D684307A10A5 \
 	541FBE7D8F78B25E055DDEE13C370389288584E7 \
 	61B832AC2F1C5A90F0F9B00A1C506407564C17A3 \
+	713DA88BE50911535FE716F5208B0AB1D63011C7 \
 	79F7026C690BAA50B92CD8B66A3AD3F4F22C4FED \
 	9BA44C2621385CB966EBA586F72C284D731FABEE \
 	A27677289986DB50844682F8ACB77FC2E86E29AC \
@@ -20,19 +21,22 @@ RUN gpg --keyserver pool.sks-keyservers.net --recv-keys \
 	F3A04C595DB5B6A5F1ECA43E3B7BBB100D811BBE \
 	F7DA48BB64BCB84ECBA7EE6935CD23C10D498E23
 
-ENV TOMCAT_MAJOR 8
-ENV TOMCAT_VERSION 8.0.32
+ENV TOMCAT_MAJOR 7
+ENV TOMCAT_VERSION 7.0.68
 ENV TOMCAT_TGZ_URL https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 
+COPY tomcat.tar.gz $CATALINA_HOME/
+COPY tomcat.tar.gz.asc $CATALINA_HOME/
+
 RUN set -x \
-	&& curl -fSL "$TOMCAT_TGZ_URL" -o tomcat.tar.gz \
-	&& curl -fSL "$TOMCAT_TGZ_URL.asc" -o tomcat.tar.gz.asc \
+	#&& curl -fSL "$TOMCAT_TGZ_URL" -o tomcat.tar.gz \
+	#&& curl -fSL "$TOMCAT_TGZ_URL.asc" -o tomcat.tar.gz.asc \
 	&& gpg --verify tomcat.tar.gz.asc \
 	&& tar -xvf tomcat.tar.gz --strip-components=1 \
 	&& rm bin/*.bat \
 	&& rm tomcat.tar.gz*
 
-COPY ./tomcat-users.xml $CATALINA_HOME/conf/
+COPY tomcat-users.xml $CATALINA_HOME/conf
 
 EXPOSE 8080
 CMD ["catalina.sh", "run"]
