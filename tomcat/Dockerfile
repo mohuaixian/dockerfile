@@ -1,9 +1,16 @@
-FROM java:7-jre
+FROM java:7-jdk
 
 ENV CATALINA_HOME /usr/local/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
 RUN mkdir -p "$CATALINA_HOME"
 WORKDIR $CATALINA_HOME
+
+# update dpkg repositories
+RUN apt-get update
+
+# install wget
+RUN apt-get install -y vim
+
 
 # see https://www.apache.org/dist/tomcat/tomcat-8/KEYS
 RUN gpg --keyserver pool.sks-keyservers.net --recv-keys \
@@ -25,8 +32,8 @@ ENV TOMCAT_MAJOR 7
 ENV TOMCAT_VERSION 7.0.68
 ENV TOMCAT_TGZ_URL https://www.apache.org/dist/tomcat/tomcat-$TOMCAT_MAJOR/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 
-COPY tomcat.tar.gz $CATALINA_HOME/
-COPY tomcat.tar.gz.asc $CATALINA_HOME/
+COPY ./attach/tomcat.tar.gz $CATALINA_HOME/
+COPY ./attach/tomcat.tar.gz.asc $CATALINA_HOME/
 
 RUN set -x \
 	#&& curl -fSL "$TOMCAT_TGZ_URL" -o tomcat.tar.gz \
@@ -36,7 +43,9 @@ RUN set -x \
 	&& rm bin/*.bat \
 	&& rm tomcat.tar.gz*
 
-COPY tomcat-users.xml $CATALINA_HOME/conf
+COPY ./attach/tomcat-users.xml $CATALINA_HOME/conf
 
+EXPOSE 8443
 EXPOSE 8080
+
 CMD ["catalina.sh", "run"]
